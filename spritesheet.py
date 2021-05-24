@@ -3,6 +3,7 @@
 import pygame
 from settings import *
 import random
+import game
 vec = pygame.math.Vector2
 
 
@@ -46,12 +47,13 @@ class Thief(pygame.sprite.Sprite):
         self.load_frames()
         self.image = self.moving_r_frames[0]
 
+        self.xpos = [-5, 5]
         self.rect = self.image.get_rect()
         self.rect.center = (WIDTH / 2, HEIGHT / 2)
         self.mask = pygame.mask.from_surface(self.image)
-        self.pos = vec(WIDTH / 2, HEIGHT / 2)
+        self.pos = vec(WIDTH / 2, random.randrange(0 + 64, HEIGHT - 64))
         self.vel = vec(0, 0)
-        self.acc = vec(random.randrange(-5, 5), 0)
+        self.acc = vec(random.choice(self.xpos), 0)
 
     def load_frames(self):
         self.moving_r_frames = [self.sprite.get_image((416, 64, 32, 32), WHITE),
@@ -76,6 +78,13 @@ class Thief(pygame.sprite.Sprite):
 
         self.pos += self.acc
         self.rect.center = self.pos
+
+        if self.pos.x > WIDTH + 64:
+            self.acc.x = -self.acc.x
+
+        elif self.pos.x < -64:
+            self.acc.x = -self.acc.x
+
 
     def animate(self):
         now = pygame.time.get_ticks()

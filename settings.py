@@ -18,3 +18,6 @@ COIN_SHEET = "assets/coin_gold.png"
 BG_MUSIC = "assets/BG_MUSIC.wav"
 COIN_NOISE = "assets/COIN_COLLECT.wav"
 
+SCORE  = 0
+LIFE = 100
+
