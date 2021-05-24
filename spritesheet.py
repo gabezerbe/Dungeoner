@@ -1,3 +1,5 @@
+#SpriteSheet Class and Object classes file
+
 import pygame
 from settings import *
 import random

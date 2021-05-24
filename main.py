@@ -1,4 +1,4 @@
-# Dungeon Hopper - AI and animation test game
+# Dungeoner animation and AI test project
 
 import pygame
 import random

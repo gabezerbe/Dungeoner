@@ -1,4 +1,4 @@
-# Game Options File
+# Game Settings File that contains Options so as not to clutter the main
 TITLE = "Dungeoner!"
 WIDTH = 900
 HEIGHT = 720
