@@ -1,1 +1,7 @@
-/venv/
+.idea/
+
+.env
+
+.venv
+venv/
+ENV/
