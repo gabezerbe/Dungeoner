@@ -1,34 +1,33 @@
-import pygame
+import pygame as pg
+import traceback
 import random
-from spritesheet import *
-from settings import *
+
+import settings as st
+import spritesheet as spr
+import functions as fn
+import rooms
+
+vec = pg.math.Vector2
 
 class Game:
     def __init__(self):
         # Initialize game window and variables
-        pygame.init()
-        pygame.mixer.init()
-        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
-        pygame.display.set_caption(TITLE)
-        self.clock = pygame.time.Clock()
-        self.last_tick = 0
+        pg.mixer.init()
+        pg.init()
+
+        self.screen = pg.display.set_mode((st.WIDTH, st.HEIGHT))
+
+        self.clock = pg.time.Clock()
         self.running = True
-        self.bg_music = pygame.mixer.music.load(BG_MUSIC)
-        self.coin_collect = pygame.mixer.Sound(COIN_NOISE)
-        self.score = SCORE
+
+        self.load_data()
+
+    def load_data(self):
+        self.room_images = fn.img_list_from_strip('rooms_strip.png', 16, 16, 0, 18)
 
     def new(self):
         # Start a new Game
-        self.all_coins = pygame.sprite.Group()
-        self.all_sprites = pygame.sprite.Group()
-        self.all_thieves = pygame.sprite.Group()
-        self.player = Player()
-        self.new_thief()
-        self.new_coins()
-        self.all_coins.add(self.coin)
-        self.all_sprites.add(self.coin)
-        self.all_sprites.add(self.player)
-        self.all_sprites.add(self.thief)
+        pass
 
     def run(self):
         # Game Loop
@@ -41,44 +40,11 @@ class Game:
 
     def update(self):
         # Game Loop Update
-        self.all_sprites.update()
-        if len(self.all_thieves) == 0:
-            self.new_thief
+        pass
 
     def events(self):
         # Game Loop Events
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                if self.playing:
-                    self.playing = False
-
-                self.running = False
-
-        #janky way to do mask collisions on the coins for better hit detection
-        for self.coins in self.all_coins:
-            self.coin_collision = pygame.sprite.collide_mask(self.player, self.coins)
-            self.coin_stolen = pygame.sprite.collide_mask(self.thief, self.coins)
-            if self.coin_collision:
-                self.coin_collect.play()
-                self.score += 100
-                self.coins.kill()
-            if self.coin_stolen:
-                self.coins.kill()
-            if len(self.all_coins) == 0:
-                self.new_coins()
-
-    def new_thief(self):
-        print("All Thieves have escaped! A new one arrives")
-        self.thief = Thief()
-        self.all_thieves.add(self.thief)
-        self.all_sprites.add(self.thief)
-
-
-    def new_coins(self):
-        for i in range(10):
-            self.coin = Coin()
-            self.all_coins.add(self.coin)
-            self.all_sprites.add(self.coin)
+        pass
 
     def draw(self):
         # Game Loop Draw

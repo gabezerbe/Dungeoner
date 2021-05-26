@@ -32,6 +32,30 @@ class SpriteSheet:
         return self.get_images(tups, colorkey)
 
 
+class Golem(pygame.sprite.Sprite):
+    #enemy sprite that will damage the player
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        #Keeping track of if the sprite is moving left or right
+        self.move_right = False
+        self.move_left = False
+        self.current_frame = 0
+        #storing last tick an update occured
+        self.last_update = 0
+        self.filename = CHAR_SHEET
+        self.sprite = SpriteSheet(self.filename)
+        self.load_frames()
+        self.image = self.moving_r_frames[0]
+        #storing local positions and generating rectangles for collision detecting
+        self.xpos = []
+        self.rect = self.image.get_rect()
+        self.rect.center = (WIDTH / 2, HEIGHT / 2)
+        self.mask = pygame.mask.from_surface(self.image)
+        self.pos = vec(random.randrange(WIDTH - 64, 64), random.randrange(HEIGHT - 64, 64))
+        self.vel = vec(0, 0)
+        self.acc = vec(0, 0)
+
+
 class Thief(pygame.sprite.Sprite):
     #enemy sprite that will try to steal your coins
     def __init__(self):
