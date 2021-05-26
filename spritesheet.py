@@ -32,107 +32,56 @@ class SpriteSheet:
         return self.get_images(tups, colorkey)
 
 
-class Golem(pygame.sprite.Sprite):
-    #enemy sprite that will damage the player
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        #Keeping track of if the sprite is moving left or right
-        self.move_right = False
-        self.move_left = False
-        self.current_frame = 0
-        #storing last tick an update occured
-        self.last_update = 0
-        self.filename = CHAR_SHEET
+class Floor_Tile(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.floor_tiles
+        pygame.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.filename = TILE_SHEET
         self.sprite = SpriteSheet(self.filename)
         self.load_frames()
-        self.image = self.moving_r_frames[0]
-        #storing local positions and generating rectangles for collision detecting
-        self.xpos = []
+        self.image = self.standing_frames[random.randrange(0, 3)]
+        self.image = pygame.transform.scale(self.image, (TILESIZE, TILESIZE))
         self.rect = self.image.get_rect()
-        self.rect.center = (WIDTH / 2, HEIGHT / 2)
-        self.mask = pygame.mask.from_surface(self.image)
-        self.pos = vec(random.randrange(WIDTH - 64, 64), random.randrange(HEIGHT - 64, 64))
-        self.vel = vec(0, 0)
-        self.acc = vec(0, 0)
-
-
-class Thief(pygame.sprite.Sprite):
-    #enemy sprite that will try to steal your coins
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        #keeping track of if the sprite is moving left or right
-        self.move_right = False
-        self.move_left = False
-        self.current_frame = 0
-        #storing when the last tick an update occured
-        self.last_update = 0
-        self.filename = CHAR_SHEET
-        self.sprite = SpriteSheet(self.filename)
-        self.load_frames()
-        self.image = self.moving_r_frames[0]
-
-        self.xpos = [-5, 5]
-        self.rect = self.image.get_rect()
-        self.rect.center = (WIDTH / 2, HEIGHT / 2)
-        self.mask = pygame.mask.from_surface(self.image)
-        self.pos = vec(WIDTH / 2, random.randrange(0 + 64, HEIGHT - 64))
-        self.vel = vec(0, 0)
-        self.acc = vec(random.choice(self.xpos), 0)
+        self.x = x
+        self.y = y
+        self.rect.x = x * TILESIZE
+        self.rect.y = y * TILESIZE
 
     def load_frames(self):
-        self.moving_r_frames = [self.sprite.get_image((416, 64, 32, 32), WHITE),
-                              self.sprite.get_image((448, 64, 32, 32), WHITE),
-                              self.sprite.get_image((480, 64, 32, 32), WHITE),
-                              self.sprite.get_image((512, 64, 32, 32), WHITE)]
-        #Sets an empty array for the left facing walking frames, then takes the right facing walking
-        #frames, flips them, and adds them to the new array
-        self.moving_l_frames = []
-        for frame in self.moving_r_frames:
-            self.moving_l_frames.append(pygame.transform.flip(frame, True, False))
-
-    def update(self):
-        if self.acc.x < 0:
-            self.move_right = False
-            self.move_left = True
-        if self.acc.x > 0:
-            self.move_right = True
-            self.move_left = False
-
-        self.animate()
-
-        self.pos += self.acc
-        self.rect.center = self.pos
-
-        if self.pos.x > WIDTH + 64:
-            self.acc.x = -self.acc.x
-
-        elif self.pos.x < -64:
-            self.acc.x = -self.acc.x
+        self.standing_frames = [self.sprite.get_image((44, 64, 16, 16), BLACK),
+                                self.sprite.get_image((82, 50, 16, 16), BLACK),
+                                self.sprite.get_image((38, 79, 16, 16), BLACK),
+                                self.sprite.get_image((60, 80, 16, 16), BLACK)]
 
 
-    def animate(self):
-        now = pygame.time.get_ticks()
-        if self.move_left:
-            if now - self.last_update > 200:
-                self.last_update = now
-                self.current_frame = (self.current_frame + 1) % len(self.moving_l_frames)
-                self.image = self.moving_l_frames[self.current_frame]
-                self.image = pygame.transform.scale(self.image, (96, 96))
-                self.mask = pygame.mask.from_surface(self.image)
+class Wall(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.walls
+        pygame.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.filename = TILE_SHEET
+        self.sprite = SpriteSheet(self.filename)
+        self.load_frames()
+        self.image = self.standing_frames[0]
+        self.image = pygame.transform.scale(self.image, (TILESIZE, TILESIZE))
+        self.rect = self.image.get_rect()
+        self.rect.width = TILESIZE
+        self.rect.height = TILESIZE
+        self.x = x
+        self.y = y
+        self.rect.x = x * TILESIZE
+        self.rect.y = y * TILESIZE
 
-        if self.move_right:
-            if now - self.last_update > 200:
-                self.last_update = now
-                self.current_frame = (self.current_frame + 1) % len(self.moving_r_frames)
-                self.image = self.moving_r_frames[self.current_frame]
-                self.image = pygame.transform.scale(self.image, (96, 96))
-                self.mask = pygame.mask.from_surface(self.image)
+    def load_frames(self):
+        self.standing_frames = [self.sprite.get_image((32, 228, 16, 16), BLACK)]
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites
+        pygame.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
         #keeping track of if we're walking or not and what frame we're on
         self.walking_r = False
         self.walking_l = False
@@ -146,12 +95,12 @@ class Player(pygame.sprite.Sprite):
         self.sprite = SpriteSheet(self.filename)
         self.load_frames()
         self.image = self.standing_frames[0]
+        self.image = pygame.transform.scale(self.image, (TILESIZE, TILESIZE))
 
         #Sets image and positions
         self.rect = self.image.get_rect()
-        self.rect.center = (WIDTH / 2, HEIGHT / 2)
         self.mask = pygame.mask.from_surface(self.image)
-        self.pos = vec(WIDTH / 2, HEIGHT / 2)
+        self.pos = vec(x * TILESIZE, y * TILESIZE)
         self.vel = vec(0, 0)
         self.acc = vec(0, 0)
 
@@ -168,9 +117,29 @@ class Player(pygame.sprite.Sprite):
         for frame in self.walk_frames_r:
             self.walk_frames_l.append(pygame.transform.flip(frame, True, False))
 
-    def update(self):
+    def collide_with_walls(self, dir):
+        if dir == 'x':
+            self.hits = pygame.sprite.spritecollide(self, self.game.walls, False)
+            if self.hits:
+                if self.acc.x > 0:
+                    self.pos.x = self.hits[0].rect.left - self.rect.width
+                if self.acc.x < 0:
+                    self.pos.x = self.hits[0].rect.right
+                self.acc.x = 0
+                self.rect.x = self.pos.x
+        if dir == 'y':
+            self.hits = pygame.sprite.spritecollide(self, self.game.walls, False)
+            if self.hits:
+                if self.acc.y > 0:
+                    self.pos.y = self.hits[0].rect.top - self.rect.height
+                if self.acc.y < 0:
+                    self.pos.y = self.hits[0].rect.bottom
+                self.acc.y = 0
+                self.rect.y = self.pos.y
 
-        self.animate()
+
+    def walk(self):
+
         self.acc = vec(0, 0)
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
@@ -181,6 +150,10 @@ class Player(pygame.sprite.Sprite):
             self.acc.y = -3
         if keys[pygame.K_DOWN]:
             self.acc.y = 3
+
+        if self.acc.x != 0 and self.acc.y != 0:
+            self.acc.x *= 0.7071
+            self.acc.y *= 0.7071
 
         if self.acc.x > 0:
             self.walking_r = True
@@ -193,7 +166,18 @@ class Player(pygame.sprite.Sprite):
             self.walking_r = False
 
         self.pos += self.acc
-        self.rect.center = self.pos
+
+    def update(self):
+        self.animate()
+        self.walk()
+
+        self.image = pygame.transform.scale(self.image, (TILESIZE, TILESIZE))
+
+        self.rect.x = self.pos.x
+        self.collide_with_walls('x')
+        self.rect.y = self.pos.y
+        self.collide_with_walls('y')
+
 
     def animate(self):
         now = pygame.time.get_ticks()
@@ -202,7 +186,6 @@ class Player(pygame.sprite.Sprite):
                 self.last_update = now
                 self.current_frame = (self.current_frame + 1) % len(self.standing_frames)
                 self.image = self.standing_frames[self.current_frame]
-                self.image = pygame.transform.scale(self.image, (96, 96))
                 self.mask = pygame.mask.from_surface(self.image)
 
         if self.walking_l:
@@ -210,7 +193,6 @@ class Player(pygame.sprite.Sprite):
                 self.last_update = now
                 self.current_frame = (self.current_frame + 1) % len(self.walk_frames_l)
                 self.image = self.walk_frames_l[self.current_frame]
-                self.image = pygame.transform.scale(self.image, (96, 96))
                 self.mask = pygame.mask.from_surface(self.image)
 
         if self.walking_r:
@@ -218,45 +200,4 @@ class Player(pygame.sprite.Sprite):
                 self.last_update = now
                 self.current_frame = (self.current_frame + 1) % len(self.walk_frames_r)
                 self.image = self.walk_frames_r[self.current_frame]
-                self.image = pygame.transform.scale(self.image, (96, 96))
                 self.mask = pygame.mask.from_surface(self.image)
-
-
-class Coin(pygame.sprite.Sprite):
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.x_pos = random.randrange(64, WIDTH - 64)
-        self.y_pos = random.randrange(64, HEIGHT - 64)
-        self.filename = COIN_SHEET
-        self.sprite = SpriteSheet(self.filename)
-        self.last_update = 0
-        self.current_frame = 0
-        self.load_frames()
-        self.image = self.frames[0]
-        self.mask = pygame.mask.from_surface(self.image)
-
-        self.rect = self.image.get_rect()
-        self.rect.center = (self.x_pos // 1, self.y_pos // 1)
-
-    def update(self):
-        self.animate()
-
-    def load_frames(self):
-        self.frames = [self.sprite.get_image((0, 0, 32, 32), BLACK),
-                       self.sprite.get_image((32, 0, 32, 32), BLACK),
-                       self.sprite.get_image((64, 0, 32, 32), BLACK),
-                       self.sprite.get_image((96, 0, 32, 32), BLACK),
-                       self.sprite.get_image((128, 0, 32, 32), BLACK),
-                       self.sprite.get_image((160, 0, 32, 32), BLACK),
-                       self.sprite.get_image((192, 0, 32, 32), BLACK),
-                       self.sprite.get_image((224, 0, 32, 32), BLACK)]
-
-    def animate(self):
-        now = pygame.time.get_ticks()
-        if now - self.last_update > 200:
-            self.last_update = now
-            self.current_frame = (self.current_frame + 1) % len(self.frames)
-            self.image = self.frames[self.current_frame]
-            self.image = pygame.transform.scale(self.image, (64, 64))
-            self.mask = pygame.mask.from_surface(self.image)
-
