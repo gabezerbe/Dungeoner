@@ -2,12 +2,12 @@
 
 #Window Settings and Constants
 TITLE = "Dungeoner!"
-GLOBAL_SCALE = 5
+GLOBAL_SCALE = 10
 TILESIZE = 16 * GLOBAL_SCALE
 TILES_W = 12
 TILES_H = 12
-WIDTH = TILESIZE * TILES_W
-HEIGHT = TILESIZE * TILES_H
+WIDTH = 1600
+HEIGHT = 1200
 
 #Tick rate/ Frame Rate
 FPS = 60
@@ -16,6 +16,10 @@ FPS = 60
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 DARK_GRAY = (40, 40, 40)
+
+#Player Stuff
+SCORE = 0
+
 
 #FILE PATHS
 #SPRITES
