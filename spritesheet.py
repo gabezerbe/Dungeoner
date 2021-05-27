@@ -34,7 +34,7 @@ class SpriteSheet:
 
 class Stairs(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
-        self.groups = game.all_sprites, game.floor_tiles
+        self.groups = game.all_sprites, game.stairs, game.floor_tiles
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         self.filename = TILE_SHEET
@@ -144,11 +144,12 @@ class Player(pygame.sprite.Sprite):
         self.groups = game.all_sprites, game.player_sprite
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.game = game
-        self.score = 0
         #keeping track of if we're walking or not and what frame we're on
         self.walking_r = False
         self.walking_l = False
         self.current_frame = 0
+        self.standing_on_stairs = False
+        self.loading_level = False
 
         #Sets an internal frame rate to animate at
         self.last_update = 0
@@ -158,7 +159,7 @@ class Player(pygame.sprite.Sprite):
         self.sprite = SpriteSheet(self.filename)
         self.load_frames()
         self.image = self.standing_frames[0]
-        self.image = pygame.transform.scale(self.image, (TILESIZE, TILESIZE))
+        self.image = pygame.transform.scale(self.image, (18 * 5, 24 * 5))
 
         #Sets image and positions
         self.rect = self.image.get_rect()
@@ -168,24 +169,31 @@ class Player(pygame.sprite.Sprite):
         self.acc = vec(0, 0)
 
     def load_frames(self):
-        self.standing_frames = [self.sprite.get_image((0, 32, 32, 32), WHITE)]
+        self.standing_frames = [self.sprite.get_image((8, 40, 18, 24), WHITE)]
 
-        self.walk_frames_r = [self.sprite.get_image((416, 32, 32, 32), WHITE),
-                              self.sprite.get_image((448, 32, 32, 32), WHITE),
-                              self.sprite.get_image((480, 32, 32, 32), WHITE),
-                              self.sprite.get_image((512, 32, 32, 32), WHITE)]
+        self.walk_frames_r = [self.sprite.get_image((456, 40, 18, 24), WHITE),
+                              self.sprite.get_image((456 + 32, 40, 18, 24), WHITE),
+                              self.sprite.get_image((456 + 64, 40, 18, 24), WHITE),
+                              self.sprite.get_image((456 + 96, 40, 18, 24), WHITE)]
         #Sets an empty array for the left facing walking frames, then takes the right facing walking
         #frames, flips them, and adds them to the new array
         self.walk_frames_l = []
         for frame in self.walk_frames_r:
             self.walk_frames_l.append(pygame.transform.flip(frame, True, False))
 
+    def collide_with_stairs(self):
+        self.hits = pygame.sprite.spritecollide(self, self.game.stairs, False)
+
+        if not self.loading_level:
+            if self.hits:
+                self.standing_on_stairs = True
+
     def collide_with_coins(self):
         self.hits = pygame.sprite.spritecollide(self, self.game.all_treasure, True)
         if self.hits:
-            self.score += 100
+            self.game.score += 100
             self.game.coin_collect.play()
-            print(self.score)
+            print(self.game.score)
 
     def collide_with_walls(self, dir):
         if dir == 'x':
@@ -208,7 +216,7 @@ class Player(pygame.sprite.Sprite):
                 self.rect.y = self.pos.y
 
 
-    def walk(self):
+    def get_keys(self):
 
         self.acc = vec(0, 0)
         keys = pygame.key.get_pressed()
@@ -237,11 +245,18 @@ class Player(pygame.sprite.Sprite):
 
         self.pos += self.acc
 
+        if self.standing_on_stairs:
+            if not self.loading_level:
+                self.game.current_level += 1
+                self.loading_level = True
+                self.game.new()
+            print(self.game.current_level)
+
     def update(self):
         self.animate()
-        self.walk()
+        self.get_keys()
 
-        self.image = pygame.transform.scale(self.image, (TILESIZE, TILESIZE))
+        self.image = pygame.transform.scale(self.image, (18 * 5, 24 * 5))
 
         self.rect.x = self.pos.x
         self.collide_with_walls('x')
@@ -249,6 +264,7 @@ class Player(pygame.sprite.Sprite):
         self.collide_with_walls('y')
 
         self.collide_with_coins()
+        self.collide_with_stairs()
 
 
     def animate(self):

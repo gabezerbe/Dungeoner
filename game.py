@@ -19,15 +19,18 @@ class Game:
         self.running = True
         self.bg_music = pg.mixer.music.load(st.BG_MUSIC)
         self.coin_collect = pg.mixer.Sound(st.COIN_NOISE)
+        self.score = 0
+        self.current_level = 0
         self.load_data()
 
     def load_data(self):
         self.game_folder = path.dirname(__file__)
-        self.map = Map(path.join(self.game_folder, 'map.txt'))
+        self.map = [Map(path.join(self.game_folder, 'map.txt')),
+                    Map(path.join(self.game_folder, 'map1.txt')),
+                    Map(path.join(self.game_folder, 'map2.txt'))]
 
     def new(self):
         # Start a new Game
-
         # Sprite Groups
         self.all_sprites = pg.sprite.Group()
         self.all_treasure = pg.sprite.Group()
@@ -35,10 +38,11 @@ class Game:
         self.walls = pg.sprite.Group()
         self.floor_tiles = pg.sprite.Group()
         self.player_sprite = pg.sprite.Group()
+        self.stairs = pg.sprite.Group()
 
         # Generate rooms and spawn the player
         self.generate_rooms()
-        self.camera = Camera(self.map.width, self.map.height)
+        self.camera = Camera(self.map[self.current_level].width, self.map[self.current_level].height)
 
     def run(self):
         # Game Loop
@@ -65,18 +69,17 @@ class Game:
     def generate_rooms(self):
         # Generates rooms
         # Small issue when drawing floor tiles where if the tile is drawn after the player it draws it on top of them
-        for row, tiles in enumerate(self.map.data):
+        for row, tiles in enumerate(self.map[self.current_level].data):
             for col, tile in enumerate(tiles):
                 if tile == 'w':
                     spr.Wall(self, col, row)
                 if tile == 'f':
-                    #spr.Floor_Tile(self, col, row)
-                    pass
+                    spr.Floor_Tile(self, col, row)
                 if tile == 'c':
-                    #spr.Floor_Tile(self, col, row)
+                    spr.Floor_Tile(self, col, row)
                     spr.Coin(self, col, row)
                 if tile == 'p':
-                    #spr.Floor_Tile(self, col, row)
+                    spr.Floor_Tile(self, col, row)
                     self.player = spr.Player(self, col, row)
                 if tile == 's':
                     spr.Stairs(self, col, row)
@@ -90,9 +93,21 @@ class Game:
     def draw(self):
         # Game Loop Draw
         self.screen.fill(st.DARK_GRAY)
-        for sprite in self.all_sprites:
+        for sprite in self.walls:
+            self.screen.blit(sprite.image, self.camera.apply(sprite))
+        for sprite in self.floor_tiles:
+            self.screen.blit(sprite.image, self.camera.apply(sprite))
+        for sprite in self.all_treasure:
+            self.screen.blit(sprite.image, self.camera.apply(sprite))
+        for sprite in self.player_sprite:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
 
+        self.font = pg.font.Font(None, 64)
+        self.text = self.font.render('Score: %d' % self.score, True, st.WHITE)
+        self.textRect = self.text.get_rect()
+        self.textRect.center = (150, 32)
+
+        self.screen.blit(self.text, self.textRect)
         pg.display.flip()
 
     def show_splash_screen(self):
