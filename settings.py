@@ -1,5 +1,5 @@
 # Game Settings File that contains Options so as not to clutter the main
-
+# Edit for Commit
 #Window Settings and Constants
 TITLE = "Dungeoner!"
 GLOBAL_SCALE = 10

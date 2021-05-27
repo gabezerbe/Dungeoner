@@ -7,6 +7,8 @@ import settings as st
 import spritesheet as spr
 vec = pg.math.Vector2
 
+#Edit for commit
+
 class Game:
     def __init__(self):
         # Initialize game window and variables

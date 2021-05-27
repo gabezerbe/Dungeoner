@@ -1,6 +1,8 @@
 import pygame as pg
 from settings import *
 
+#Edit for Commit
+
 class Map:
     def __init__(self, filename):
         self.data = []
