@@ -1,13 +1,16 @@
 # Dungeoner animation and AI test project
-# Edit for commit
 import game
 import pygame
 
 game = game.Game()
+pygame.mixer.music.play(-1, 0, 0)
+
+while game.menu:
+    game.show_splash_screen()
 
 while game.running:
     game.new()
     game.run()
-    game.show_end_screen()
 
-pygame.quit()
+while game.end_game:
+    game.show_end_screen()

@@ -7,7 +7,6 @@ import settings as st
 import spritesheet as spr
 vec = pg.math.Vector2
 
-#Edit for commit
 
 class Game:
     def __init__(self):
@@ -16,7 +15,9 @@ class Game:
         pg.init()
         self.screen = pg.display.set_mode((st.WIDTH, st.HEIGHT))
         self.clock = pg.time.Clock()
-        self.running = True
+        self.running = False
+        self.menu = True
+        self.end_game = False
         self.bg_music = pg.mixer.music.load(st.BG_MUSIC)
         self.coin_collect = pg.mixer.Sound(st.COIN_NOISE)
         self.score = 0
@@ -33,6 +34,7 @@ class Game:
         # Start a new Game
         # Sprite Groups
         self.all_sprites = pg.sprite.Group()
+        self.doors = pg.sprite.Group()
         self.all_treasure = pg.sprite.Group()
         self.all_enemies = pg.sprite.Group()
         self.walls = pg.sprite.Group()
@@ -83,12 +85,8 @@ class Game:
                     self.player = spr.Player(self, col, row)
                 if tile == 's':
                     spr.Stairs(self, col, row)
-
-    def draw_grid(self):
-        for x in range(0, st.WIDTH, st.TILESIZE):
-            pg.draw.line(self.screen, st.WHITE, (x, 0), (x, st.HEIGHT))
-        for y in range(0, st.HEIGHT, st.TILESIZE):
-            pg.draw.line(self.screen, st.WHITE, (0, y), (st.WIDTH, y))
+                if tile == 'd':
+                    spr.Door(self, col, row)
 
     def draw(self):
         # Game Loop Draw
@@ -99,8 +97,11 @@ class Game:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
         for sprite in self.all_treasure:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
+        for sprite in self.doors:
+            self.screen.blit(sprite.image, self.camera.apply(sprite))
         for sprite in self.player_sprite:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
+
 
         self.font = pg.font.Font(None, 64)
         self.text = self.font.render('Score: %d' % self.score, True, st.WHITE)
@@ -111,9 +112,57 @@ class Game:
         pg.display.flip()
 
     def show_splash_screen(self):
-        # Splash Screen
-        pass
+        while self.menu:
+            self.events()
+
+            self.screen.fill(st.DARK_GRAY)
+            self.font = pg.font.Font(None, 152)
+            self.font2 = pg.font.Font(None, 86)
+            self.text = self.font.render("DUNGEONER", True, st.WHITE)
+            self.text2 = self.font2.render("PRESS SPACE TO START", True, st.WHITE)
+            self.textRect = self.text.get_rect()
+            self.textRect.center = (st.WIDTH/2, st.HEIGHT/2)
+            self.text2Rect = self.text2.get_rect()
+            self.text2Rect.center = (st.WIDTH/2, (st.HEIGHT/2) + 64)
+
+            self.screen.blit(self.text, self.textRect)
+            self.screen.blit(self.text2, self.text2Rect)
+
+            pg.display.flip()
+
+            keys = pg.key.get_pressed()
+            if keys[pg.K_SPACE]:
+                self.running = True
+                self.menu = False
+
 
     def show_end_screen(self):
         # End Screen
-        pass
+        while self.end_game:
+            self.events()
+            self.screen.fill(st.DARK_GRAY)
+
+            self.scoreFont = pg.font.Font(None, 128)
+            self.font = pg.font.Font(None, 128)
+
+            self.text = self.font.render("You've braved the Dungeon!", True, st.WHITE)
+            self.text2 = self.scoreFont.render("Score: %d" % self.score, True, st.WHITE)
+
+            self.textRect = self.text.get_rect()
+            self.textRect2 = self.text2.get_rect()
+
+            self.textRect.center = (st.WIDTH / 2, st.HEIGHT / 2 - 64)
+            self.textRect2.center = (st.WIDTH / 2, (st.HEIGHT / 2) + 96)
+
+            self.screen.blit(self.text, self.textRect)
+            self.screen.blit(self.text2, self.textRect2)
+
+            pg.display.flip()
+
+            keys = pg.key.get_pressed()
+            if keys[pg.K_SPACE]:
+                self.new()
+                self.end_game = False
+                self.running = True
+            if keys[pg.K_ESCAPE]:
+                pg.quit()

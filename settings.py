@@ -1,5 +1,5 @@
 # Game Settings File that contains Options so as not to clutter the main
-# Edit for Commit
+
 #Window Settings and Constants
 TITLE = "Dungeoner!"
 GLOBAL_SCALE = 10
@@ -29,3 +29,4 @@ TILE_SHEET = "assets/dungeon_tiles.png"
 #SOUND
 BG_MUSIC = "assets/BG_MUSIC.wav"
 COIN_NOISE = "assets/COIN_COLLECT.wav"
+MENU_MUSIC = "assets/MENU_MUSIC.wav"

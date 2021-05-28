@@ -1,5 +1,4 @@
 #SpriteSheet Class and Object classes file
-# Edit for Commit
 import pygame
 from settings import *
 import random
@@ -31,6 +30,24 @@ class SpriteSheet:
                 for x in range(image_count)]
         return self.get_images(tups, colorkey)
 
+class Door(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.doors
+        pygame.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.filename = TILE_SHEET
+        self.sprite = SpriteSheet(self.filename)
+        self.load_frames()
+        self.image = self.standing_frames[0]
+        self.image = pygame.transform.scale(self.image, (TILESIZE, TILESIZE))
+        self.rect = self.image.get_rect()
+        self.x = x
+        self.y = y
+        self.rect.x = x * TILESIZE
+        self.rect.y = y * TILESIZE
+
+    def load_frames(self):
+        self.standing_frames = [self.sprite.get_image((140, 212, 16, 16), BLACK)]
 
 class Stairs(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
@@ -181,6 +198,15 @@ class Player(pygame.sprite.Sprite):
         for frame in self.walk_frames_r:
             self.walk_frames_l.append(pygame.transform.flip(frame, True, False))
 
+    def collide_with_door(self):
+        self.hits = pygame.sprite.spritecollide(self, self.game.doors, False)
+
+        if self.hits:
+            print('Congratulatoins, you\'ve made it to the end of the dungeon!')
+            self.game.end_game = True
+            self.game.running = False
+            self.game.show_end_screen()
+
     def collide_with_stairs(self):
         self.hits = pygame.sprite.spritecollide(self, self.game.stairs, False)
 
@@ -265,6 +291,7 @@ class Player(pygame.sprite.Sprite):
 
         self.collide_with_coins()
         self.collide_with_stairs()
+        self.collide_with_door()
 
 
     def animate(self):
