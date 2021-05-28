@@ -1,4 +1,4 @@
-# Dungeoner animation and AI test project
+# Dungeoner Final Project
 import game
 import pygame
 

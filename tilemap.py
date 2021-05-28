@@ -1,3 +1,4 @@
+#Classes for loading map data and setting up the scrolling camera that follows the player
 import pygame as pg
 from settings import *
 

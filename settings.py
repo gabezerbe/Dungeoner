@@ -1,5 +1,4 @@
 # Game Settings File that contains Options so as not to clutter the main
-
 #Window Settings and Constants
 TITLE = "Dungeoner!"
 GLOBAL_SCALE = 10

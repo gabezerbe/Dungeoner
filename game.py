@@ -1,3 +1,4 @@
+#Game object class for keeping main clean
 import pygame as pg
 import random
 import sys
