@@ -256,6 +256,15 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_DOWN]:
             self.acc.y = 6
 
+        if keys[pygame.K_a]:
+            self.acc.x = -6
+        if keys[pygame.K_d]:
+            self.acc.x = 6
+        if keys[pygame.K_w]:
+            self.acc.y = -6
+        if keys[pygame.K_s]:
+            self.acc.y = 6
+
         if self.acc.x != 0 and self.acc.y != 0:
             self.acc.x *= 0.7071
             self.acc.y *= 0.7071
